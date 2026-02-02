@@ -1,62 +1,101 @@
-# LANE DETECTION AND DRIVER ASSISTANCE
 
-A concise, human-friendly project report and assets for a lane detection system.
+# Lane Detection and Driver Assistance
 
-This repository contains the LaTeX source and figures used to describe a lane
-detection and driver assistance pipeline. It's organized for easy reading,
-reproducibility of the document, and quick sharing of visuals that illustrate
-the dataset, model architecture, preprocessing, and results.
+This project collects the materials and results for a lane detection system
+designed to identify lane markings and produce clear lane overlays that can be
+used in driver-assistance demonstrations. The repository contains the LaTeX
+report source and a set of illustrative images showing dataset samples,
+preprocessing steps, the model architecture (U‑Net), and prediction overlays.
 
----
+Why this project
+-----------------
+Accurately detecting lane markings is a fundamental task for many advanced
+driver assistance systems. This work explores a segmentation-based approach to
+detect lane regions robustly, examines preprocessing choices, and reports
+quantitative and qualitative results that show the model's strengths and
+limitations on sample data.
 
-## Contents
-- `main.tex` — LaTeX source for the project report (compile to produce the PDF).
-- `images/` — Figures used in the report (dataset samples, U‑Net diagrams, overlays, training plots, etc.).
+What you'll find here
+---------------------
+- `main.tex` — The LaTeX source document containing the full report and figures.
+- `images/` — Visual assets used in the report (dataset samples, masks,
+  overlays, architecture diagrams, training/validation plots, and more).
 
-## Quick summary
-- Model: U‑Net style segmentation model for lane detection.
-- Data: Example images and segmentation masks (visualized in `images/`).
-- Output: Sample overlay images and mask comparisons included in `images/`.
+Project highlights
+------------------
+- Model: U‑Net style segmentation network adapted for lane detection.
+- Preprocessing: Color-space normalization, resizing, and optional augmentation
+  (horizontal flips, brightness/contrast jitter, random crops).
+- Training: Supervised segmentation with binary / dice-style loss and data
+  augmentation. Training observations and sample learning curves are in the
+  report images.
+- Outputs: Same-resolution mask predictions and overlay visualizations that
+  blend predicted lanes with the original images for easy inspection.
 
-## Build the report (locally)
-1. Clone the repository (if needed):
+Dataset and annotations
+-----------------------
+The images in `images/` include both raw samples and example ground-truth
+masks used during training/validation. The report explains dataset statistics
+and how masks were generated or cleaned for training.
 
-```bash
-git clone https://github.com/AswarthaHarshitha/LANE-DETECTION-AND-DRIVER-ASSISTANCE.git
-cd LANE-DETECTION-AND-DRIVER-ASSISTANCE
-```
+Method overview
+---------------
+1. Preprocessing: Resize images to a fixed training resolution, normalize pixel
+   intensities, and apply data augmentation to increase robustness.
+2. Model: U‑Net encoder–decoder architecture with skip connections to preserve
+   spatial detail. The final layer produces a single-channel probability map for
+   lane vs. background.
+3. Loss: Combination of Binary Cross-Entropy and Dice (or IoU) loss to handle
+   class imbalance and encourage mask overlap.
+4. Postprocessing: Threshold probabilities, perform morphological cleanup (open/close),
+   and optionally fit polynomial lanes for geometric smoothing.
 
-2. Compile `main.tex` to PDF. Recommended options:
+Training details (example)
+--------------------------
+- Optimizer: AdamW or Adam
+- Learning rate: 1e-4 (with cosine/step scheduling)
+- Batch size: depends on GPU memory (typical: 8–16)
+- Epochs: 30–100 (monitor val loss / IoU)
+- Regularization: weight decay, dropout in decoder as needed
 
-Using `pdflatex`:
-```bash
-pdflatex main.tex
-pdflatex main.tex  # run twice if references/toc need updating
-```
+Evaluation and results
+----------------------
+Evaluation uses pixel-level metrics (IoU, Dice) and qualitative overlays to
+measure both numerical performance and how the model behaves on edge cases
+(shadows, occlusions, worn lane markings). The report contains plots and
+example outputs; see `images/` for sample overlays and mask comparisons.
 
-Using `latexmk` (recommended if installed):
-```bash
-latexmk -pdf main.tex
-```
+Demo / visualization
+--------------------
+The repository includes images showing a simple demo interface (see
+`images/web_interface.png`). A lightweight demo can load a trained model,
+run inference on new frames, and display the original image with a colored
+overlay for predicted lanes.
 
-If the document uses bibliography or glossaries, you may also need `bibtex` or
-`biber` followed by additional `pdflatex` runs.
+How to reproduce (short)
+------------------------
+1. Prepare a Python environment with the usual ML stack (PyTorch, torchvision,
+   OpenCV, NumPy, Matplotlib).
+2. Place training images and masks in the expected folders and update any
+   path variables in the training script.
+3. Train with the hyperparameters above; save model checkpoints and export a
+   final inference script for producing overlays.
 
-## Suggestions / next steps
-- Add source code and notebooks (e.g., `src/` and `notebooks/`) so others can
-  reproduce training and inference. Provide a `requirements.txt` listing Python
-  dependencies (torch, torchvision, opencv-python, matplotlib, etc.).
-- Add a `.gitignore` to avoid committing LaTeX build artifacts and compiled PDFs.
-- Add a `LICENSE` if you want to clarify reuse terms (MIT is a common permissive
-  choice).
+Files in this repo
+------------------
+- `main.tex` — Full written report (compile to get the PDF).
+- `images/` — All figures referenced in the report.
 
-## Contact
-If you want me to add the `README.md`, `.gitignore`, or `LICENSE` and push them
-to the repository, I can do that for you and ensure the commit author/committer
-use the same name/email. Reply with the exact name and email you want used,
-or say `Pick for me` to use the display name from your existing commits.
+Next improvements
+-----------------
+- Add training and inference code (small `src/` or `notebooks/` folder).
+- Provide a `requirements.txt` and a short runnable demo script for inference.
+- Include pre-trained weights and a short usage guide for reproducing figures
+  from the report.
 
----
+Contact
+-------
+If you want, I can: add a `src/` folder with training/inference scripts,
+generate a `requirements.txt`, and add a small demo to run predictions on a
+single image. Tell me which of these you want me to add next and I will do it.
 
-Thank you — if you'd like the README text adjusted for a public release or a
-shorter summary for GitHub front-page use, tell me the tone and I will refine it.
